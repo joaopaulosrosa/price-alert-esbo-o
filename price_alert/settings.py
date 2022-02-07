@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'asset.app.BaseConfig',
+    'asset.apps.AssetConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -56,7 +56,9 @@ ROOT_URLCONF = 'price_alert.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
