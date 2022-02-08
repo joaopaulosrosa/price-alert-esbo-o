@@ -2,6 +2,11 @@
 
 {% block content%}
 
-<h1>dashboard</h1>
+
+{% for asset in assets %}
+
+  <p>{{asset.ticker}}</p>
+
+{% endfor %}
 
 {% endblock content %}

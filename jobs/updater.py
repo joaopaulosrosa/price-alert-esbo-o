@@ -5,5 +5,5 @@ from .jobs import update_assets
 
 def start():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(update_assets,'interval', seconds=30)
+    scheduler.add_job(update_assets,'interval', hours=6)
     scheduler.start()
