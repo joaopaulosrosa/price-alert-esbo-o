@@ -5,7 +5,9 @@
 
 {% for asset in assets %}
 
-  <p>{{asset.ticker}}</p>
+  <a href="{% url 'asset' asset.id %}">
+    <p>{{asset.ticker}}</p>
+  </a>
 
 {% endfor %}
 

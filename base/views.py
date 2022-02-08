@@ -12,3 +12,8 @@ def home(request):
         'ad': ad
         }
     return render(request, 'base/home.html', context)
+
+def asset(request, pk):
+    asset = Asset.objects.get(id=pk)
+    context = {'asset' : asset}
+    return render(request, 'base/asset.html', context)
