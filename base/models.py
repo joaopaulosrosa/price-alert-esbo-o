@@ -22,7 +22,7 @@ class AlarmAsset(models.Model):
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     buying_price = models.DecimalField(max_digits=30, decimal_places=2)
     selling_price = models.DecimalField(max_digits=30, decimal_places=2)
-    saving_interval = models.IntegerField
+    saving_interval = models.IntegerField(default=1)
 
     def __str__(self):
         return self.asset

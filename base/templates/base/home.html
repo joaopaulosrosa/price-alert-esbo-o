@@ -1,14 +1,17 @@
 {% extends 'main.html' %}
 
 {% block content%}
+<div class="container">
+  <a href="{% url 'create-alarm-asset' %}">Create Alarm</a>
 
+  {% for asset in assets %}
 
-{% for asset in assets %}
+    <a href="{% url 'asset' asset.id %}">
+      <p>{{asset.ticker}}</p>
+    </a>
+    <hr>
 
-  <a href="{% url 'asset' asset.id %}">
-    <p>{{asset.ticker}}</p>
-  </a>
-
-{% endfor %}
+  {% endfor %}
+</div>
 
 {% endblock content %}
