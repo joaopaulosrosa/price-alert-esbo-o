@@ -10,7 +10,7 @@ class Asset(models.Model):
     ticker = models.CharField(max_length=8,unique=True)
     company_name = models.CharField(max_length=100,null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
-    created_atupdated_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["ticker"]

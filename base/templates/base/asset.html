@@ -2,9 +2,16 @@
 
 {% block content%}
 
-<div class="pt-4">
+<div class="container pt-4">
 
-  <h1 class="pt-4">{{ asset }} - {{asset.company_name}}</h1>
+  <div class="d-flex">
+
+    <img src="{{img_url}}" alt="">
+    <h1 class="p-4">{{asset.company_name.capitalize}} ({{ asset }})</h1>
+
+  </div>
+
+  <p>{{response.website}}</p>
 
 </div>
 

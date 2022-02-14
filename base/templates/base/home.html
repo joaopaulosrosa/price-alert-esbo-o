@@ -39,7 +39,7 @@
 
       {% for asset in assets %}
 
-        <a class="text-dark" href="{% url 'asset' asset.id %}">
+        <a class="text-dark" href="{% url 'asset' asset %}">
           <p>{{asset}} - {{asset.company_name}}</p>
         </a>
         <hr>
