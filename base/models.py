@@ -1,3 +1,4 @@
+from unicodedata import category
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -7,6 +8,7 @@ from django.contrib.auth.models import User
 
 class Asset(models.Model):
     ticker = models.CharField(max_length=8,unique=True)
+    company_name = models.CharField(max_length=100,null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -25,4 +27,5 @@ class AlarmAsset(models.Model):
     saving_interval = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.asset
+
+        return self.asset.ticker

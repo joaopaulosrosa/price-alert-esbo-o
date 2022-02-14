@@ -1,17 +1,54 @@
 {% extends 'main.html' %}
 
 {% block content%}
-<div class="container">
-  <a href="{% url 'create-alarm-asset' %}">Create Alarm</a>
 
-  {% for asset in assets %}
+<div class="row pt-4">
 
-    <a href="{% url 'asset' asset.id %}">
-      <p>{{asset.ticker}}</p>
-    </a>
+  <div class="col-4 p-4">
+
+    <div class="d-flex justify-content-between">
+
+      <h3>Active Alarms</h3>
+
+      <a href="{% url 'create-alarm-asset' %}">
+        <h3>+</h3>
+      </a>
+
+    </div>
     <hr>
 
-  {% endfor %}
+    <div>
+
+      {% for alarm in alarms %}
+
+        <a class="text-dark" href="">
+          <p>{{alarm}} - {{alarm.asset.company_name}}</p>
+        </a>
+
+      {% endfor %}
+
+    </div>
+
+  </div>
+
+  <div class="col-8 p-4">
+
+    <h3>B3 Assets</h3>
+
+    <div class="pt-4">
+
+      {% for asset in assets %}
+
+        <a class="text-dark" href="{% url 'asset' asset.id %}">
+          <p>{{asset}} - {{asset.company_name}}</p>
+        </a>
+        <hr>
+
+      {% endfor %}
+    </div>
+
+  </div>
+
 </div>
 
 {% endblock content %}
