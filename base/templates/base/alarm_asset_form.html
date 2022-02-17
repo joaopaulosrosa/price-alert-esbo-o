@@ -2,13 +2,20 @@
 
 {% block content%}
 
-<div>
+<div class="row justify-content-center me-5 mt-5">
 
-  <form method="POST" action="">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
-  </form>
+  <div class="col-4 card ms-3 p-5" style="height: 400px">
+
+    <h3 class="pb-3">Create Asset:</h3>
+
+    <form class="" method="POST" action="">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input class="btn btn-primary mt-3" type="submit" value="Submit">
+    </form>
+
+  </div>
+
 
 </div>
 

@@ -14,14 +14,30 @@
   <style>
     * {
       text-decoration: none !important;
+      list-style: none !important;
     }
   </style>
   <div class="container">
     {% include 'navbar.html' %}
 
+    <ul class="messages">
+    </ul>
+
     {% block content %}
 
     {% endblock %}
+
+    {% if messages %}
+      {% for message in messages %}
+      <div class="card border-danger mb-3" style="max-width: 18rem;">
+        <div class="card-header">Login Failed</div>
+        <div class="card-body text-danger">
+          <h5 class="card-title">Wrond username or password</h5>
+          <p class="card-text">{{message}}</p>
+        </div>
+      </div>
+      {% endfor %}
+    {% endif %}
   </div>
 </body>
 </html>
