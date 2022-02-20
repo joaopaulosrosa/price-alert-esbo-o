@@ -6,10 +6,13 @@ urlpatterns = [
     path('logout/', views.logoutUser, name="logout"),
     path('register/', views.registerPage, name="register"),
 
-    path('', views.home, name="home"),
+    # path('', views.home, name="home"),
+    path('dashboard', views.dashboard, name="dashboard"),
     path('asset/<str:ticker>/', views.asset, name="asset"),
+    path('alarm-asset/<str:ticker>/', views.alarmAsset, name="alarm-asset"),
 
-    path('alarm-asset/<str:pk>/', views.alarmAsset, name="alarm-asset"),
-    path('update-asset/<str:pk>/', views.updateAlarmAsset, name="update-alarm-asset"),
     path('create-alarm-asset/', views.createAlarmAsset, name="create-alarm-asset"),
+    path('create-alarm-asset-defined/<str:ticker>/', views.createAlarmAssetDefined, name="create-alarm-asset-defined"),
+    path('update-alarm/<str:pk>/', views.updateAlarmAsset, name="update-alarm-asset"),
+    path('delete-alarm/<str:pk>/', views.deleteAlarmAsset, name="delete-alarm-asset"),
 ]

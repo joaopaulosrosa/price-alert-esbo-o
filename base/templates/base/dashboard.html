@@ -1,0 +1,171 @@
+{% extends 'main.html' %}
+
+{% block content%}
+
+<div class="row pt-4 justify-content-around" style="height: 800px">
+
+  <!-- ALARMS SECTION -->
+
+  <div class="col-4 p-4">
+
+    <div class="d-flex justify-content-between pb-2">
+
+      <h4>Alarms</h4>
+
+      <!-- ALARMS SEARCH FORM -->
+
+      <form method="GET" action="{% url 'dashboard' %}">
+
+        <input type="text" class="form-control" name="q_alarm" placeholder="Search Alarms..." />
+
+      </form>
+
+      <!-- END - ALARMS SEARCH FORM -->
+
+    </div>
+
+    {% if q_alarm != '' %}
+
+    <!-- CLEARS QUERY IF A SEARCH WAS SUBMITTED -->
+
+    <div style="text-align: right;">
+      <a href="{% url 'dashboard' %}">clear search</a>
+    </div>
+
+    <!-- END - CLEARS QUERY IF A SEARCH WAS SUBMITTED -->
+
+    {% endif %}
+    <hr>
+
+    <div class="row justify-content-center overflow-auto" style="height: 600px;">
+
+      {% if alarms %}
+      {% for alarm in alarms %}
+
+      <!-- ALARM CARD -->
+
+      <div class="card m-4 pt-3" style="width: 15rem; height: 14rem;">
+        <div class="card-body ">
+          <div class="d-flex">
+              <a href="{% url 'alarm-asset' alarm.asset.ticker %}">
+                <h5 class="card-title">{{alarm}}</h5>
+              </a>
+              <p class="card-text ms-4">{{alarm.asset.company.capitalize}}</p>
+            </div>
+
+            <div class="d-flex">
+              <div>
+                <div class="d-flex mt-3">
+                  <small class="">buy:</small>
+                  <p class="card-text ms-2">{{alarm.buying_price}}</p>
+                </div>
+                <div class="d-flex mt-2">
+                  <small class="">sell:</small>
+                  <p class="card-text ms-2">{{alarm.selling_price}}</p>
+                </div>
+                <div class="d-flex">
+                  <a href="{% url 'update-alarm-asset' alarm.id %}" class="float-right btn btn-outline-primary mt-3">Update</a>
+                </div>
+              </div>
+
+              <div style="text-align: right;">
+                <p class="p-2 ms-2 mb-0 mt-3">{{alarm.saving_interval}} - {{alarm.saving_interval}} minutes</p>
+                <a href="{% url 'delete-alarm-asset' alarm.id %}">
+                  <button class="btn btn-sm btn-danger mt-2">delete</button>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- END - ALARM CARD -->
+
+        {% endfor %}
+
+      {% else %}
+
+        <div class="wrapper text-center mt-5">
+          <p>Create your first alarm!</p>
+          <a href="{% url 'create-alarm-asset' %}">
+            <button class="btn btn-primary">Here</button>
+          </a>
+        </div>
+
+      {% endif %}
+
+    </div>
+
+  </div>
+
+  <!-- END - ALARMS SECTION -->
+
+  <!-- ASSETS SECTION -->
+
+  <div class="col-6 p-4 h-100 overflow-auto">
+
+    <div class="d-flex justify-content-between">
+
+      <h4 class="pb-2">B3 Assets</h4>
+
+      <!-- ASSETS SEARCH -->
+
+      <form method="GET" action="{% url 'dashboard' %}">
+
+        <input type="text" class="form-control" name="q_asset" placeholder="Search Assets..." />
+
+      </form>
+
+      <!-- END - ASSETS SEARCH -->
+
+    </div>
+
+    {% if q_asset != '' %}
+
+    <!-- CLEARS QUERY IF A SEARCH WAS SUBMITTED -->
+
+    <div style="text-align: right;">
+      <a href="{% url 'dashboard' %}">clear search</a>
+    </div>
+
+    <!-- END - CLEARS QUERY IF A SEARCH WAS SUBMITTED -->
+
+    {% endif %}
+
+    <hr>
+    <div class="overflow-auto" style="height: 600px;">
+      <div class="pt-1">
+
+        <!-- ASEET ROW -->
+
+        {% for asset in assets %}
+        <div class="d-flex justify-content-between align-items-center ps-4 pe-4">
+          <a href="https://www.google.com/finance/quote/{{asset}}:BVMF?hl=pt" target=”_blank”>
+            <div class="d-flex align-items-center">
+              <h6 class="mt-2">{{asset}}</h6>
+              <p class="ps-2 mt-3">- {{asset.company_name}}</p>
+            </div>
+          </a>
+
+          <a class="mt-2" href="{% url 'create-alarm-asset-defined' asset %}">
+            <h5>+</h5>
+          </a>
+        </div>
+
+        <hr>
+
+        {% endfor %}
+
+        <!-- END - ASEET ROW -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- END ASSETS SECTION -->
+
+
+</div>
+
+
+
+{% endblock content %}

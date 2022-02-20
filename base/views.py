@@ -1,12 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from .models import Asset, AlarmAsset, AssetPriceHistory
-from django.contrib import messages
+from .forms import AlarmAssetForm, AlarmAssetDefinedForm
 from django.contrib.auth.forms import UserCreationForm
-from .forms import AlarmAssetForm
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib import messages
 from django.db.models import Q
+from bs4 import BeautifulSoup
+from lxml import html
 import requests
 import re
 
@@ -16,7 +18,7 @@ import re
 def loginPage(request):
     page = 'login'
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('dashboard')
 
     if request.method == 'POST':
         username = request.POST.get('username').lower()
@@ -31,7 +33,7 @@ def loginPage(request):
 
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('dashboard')
         else:
             messages.error(request, 'Username or Password does not exist!')
 
@@ -53,11 +55,11 @@ def registerPage(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
+            user          = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
             login(request, user)
-            return redirect('home')
+            return redirect('dashboard')
         else:
             messages.error(request, 'An error occurred during registration')
 
@@ -68,57 +70,112 @@ def registerPage(request):
     return render(request, 'base/login_register.html', context)
 
 
-def home(request):
-    if request.user.is_authenticated:
-        alarms = AlarmAsset.objects.filter(user=request.user)
-    q            = request.GET.get('q') if request.GET.get('q') != None else ''
-    assets       = Asset.objects.filter(Q(company_name__icontains=q) | Q(ticker__icontains=q))
+@login_required(login_url='login')
+def dashboard(request):
+    q_asset            = request.GET.get('q_asset') if request.GET.get('q_asset') != None else ''
+    assets       = Asset.objects.filter(Q(company_name__icontains=q_asset) | Q(ticker__icontains=q_asset))
+
+    q_alarm            = request.GET.get('q_alarm') if request.GET.get('q_alarm') != None else ''
+    alarms       = AlarmAsset.objects.filter(asset__ticker__icontains=q_alarm)
+
+    deletar = request.GET.get('deletar') if request.GET.get('deletar') != None else ''
+    if request.method == 'POST':
+        print(deletar)
+        alarm = AlarmAsset.objects.get(asset__ticker__contains=deletar)
+        alarm.delete()
+        return redirect('dashboard')
+
     context      = {
+        'q_asset': q_asset,
+        'q_alarm': q_alarm,
         'assets': assets,
         'alarms': alarms,
         }
 
-    return render(request, 'base/home.html', context)
+    return render(request, 'base/dashboard.html', context)
 
 
 def asset(request, ticker):
-    asset         = Asset.objects.get(ticker=ticker)
-    # data_getter   = f'results.{ticker}'
-    # tick_nonumber = re.sub(r'[0-9]', '', asset.ticker)
-    # img_url       = f'https://www.ivalor.com.br/media/emp/logos/{tick_nonumber}.png'
+    asset          = Asset.objects.get(ticker=ticker)
+    tick_nonumber  = re.sub(r'[0-9]', '', asset.ticker)
+    img_url        = f'https://www.ivalor.com.br/media/emp/logos/{tick_nonumber}.png'
+    response = requests.get(f'https://www.google.com/finance/quote/{asset}:BVMF?hl=pt')
+    if response.status_code == 200:
+        soup    = BeautifulSoup(response.text, "html.parser")
+        price   = soup.find('div', {'class': 'YMlKec fxKbKc'})
+
+    form = AlarmAssetDefinedForm()
+    alarm          = AlarmAsset.objects.filter(asset=asset)
+
     price_historys = AssetPriceHistory.objects.all()
-    context       = {
-        'asset' : asset,
-        # 'img_url': img_url,
-        # 'data_getter': data_getter,
+
+    if request.method == 'POST':
+        form = AlarmAssetDefinedForm(request.POST)
+        if form.is_valid():
+            alarm      = form.save(commit=False)
+            alarm.asset = asset
+            alarm.user = request.user
+            alarm.save()
+            return redirect('dashboard')
+
+    context        = {
+        'form': form,
+        'asset': asset,
+        'alarm': alarm,
+        'img_url': img_url,
         'price_historys': price_historys
         }
+
 
     return render(request, 'base/asset.html', context)
 
 
 @login_required(login_url='login')
-def alarmAsset(request, pk):
-    form        = AlarmAssetForm()
-    alarm_asset = AlarmAsset.objects.get(id=pk)
-    context     = {
-        'alarm_asset' : alarm_asset,
-        'form': form
+def alarmAsset(request, ticker):
+    asset          = Asset.objects.get(ticker=ticker)
+    tick_nonumber  = re.sub(r'[0-9]', '', asset.ticker)
+    img_url        = f'https://www.ivalor.com.br/media/emp/logos/{tick_nonumber}.png'
+    response = requests.get(f'https://www.google.com/finance/quote/{asset}:BVMF?hl=pt')
+    soup    = BeautifulSoup(response.text, "html.parser")
+    price   = soup.find('div', {'class': 'YMlKec fxKbKc'}) if response.status_code == 200 else ''
+    print(price.text)
+    form = AlarmAssetDefinedForm()
+    alarm          = AlarmAsset.objects.filter(asset=asset)
+
+    price_historys = AssetPriceHistory.objects.all()
+
+    if request.method == 'POST':
+        form = AlarmAssetDefinedForm(request.POST)
+        if form.is_valid():
+            alarm      = form.save(commit=False)
+            alarm.asset = asset
+            alarm.user = request.user
+            alarm.save()
+            return redirect('dashboard')
+
+    context        = {
+        'form': form,
+        'asset': asset,
+        'price': price.text,
+        'alarm': alarm,
+        'img_url': img_url,
+        'price_historys': price_historys
         }
+
+
     return render(request, 'base/alarm_asset.html', context)
 
-@login_required(login_url='login')
 def createAlarmAsset(request):
-    form = AlarmAssetForm()
+    form   = AlarmAssetForm()
     assets = Asset.objects.all()
 
     if request.method == 'POST':
         form = AlarmAssetForm(request.POST)
         if form.is_valid():
-            alarm = form.save(commit=False)
+            alarm      = form.save(commit=False)
             alarm.user = request.user
             alarm.save()
-            return redirect('home')
+            return redirect('dashboard')
 
     context = {
         'form': form,
@@ -126,16 +183,47 @@ def createAlarmAsset(request):
         }
     return render(request, 'base/alarm_asset_form.html', context)
 
+
+def createAlarmAssetDefined(request, ticker):
+    form   = AlarmAssetDefinedForm()
+    asset = Asset.objects.get(ticker=ticker)
+    alarm = AlarmAsset()
+
+    if request.method == 'POST':
+        form = AlarmAssetDefinedForm(request.POST)
+        if form.is_valid():
+            alarm      = form.save(commit=False)
+            alarm.asset = asset
+            alarm.user = request.user
+            alarm.save()
+            return redirect('dashboard')
+
+    context = {
+        'form': form,
+        'asset': asset
+        }
+    return render(request, 'base/alarm_asset_form.html', context)
+
 @login_required(login_url='login')
 def updateAlarmAsset(request, pk):
     alarm = AlarmAsset.objects.get(id=pk)
-    form = AlarmAssetForm(instance=alarm)
+    form  = AlarmAssetDefinedForm()
 
     if request.method == 'POST':
-        form = AlarmAssetForm(request.POST, instance=alarm)
+        form = AlarmAssetForm(request.POST)
         if form.is_valid():
+            alarm      = form.save(commit=False)
+            alarm.asset = asset
             form.save()
-            return redirect('home')
+            return redirect('dashboard')
 
     context = {'form': form}
     return render(request, 'base/alarm_asset_form.html', context)
+
+
+def deleteAlarmAsset(request, pk):
+    alarm = AlarmAsset.objects.get(id=pk)
+    if request.method == 'POST':
+        alarm.delete()
+        return redirect('dashboard')
+    return render(request, 'base/delete_alarm.html')
